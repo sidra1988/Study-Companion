@@ -24,7 +24,9 @@ import { motion, AnimatePresence } from "motion/react";
 import Markdown from 'react-markdown';
 
 // Initialize Gemini API
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ 
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY || (process.env.GEMINI_API_KEY as string) 
+});
 
 const SYSTEM_INSTRUCTION = `You are an intelligent AI Study Companion designed to help students learn efficiently, stay focused, and avoid procrastination.
 Your task is to analyze the user's input and generate a structured learning response.
