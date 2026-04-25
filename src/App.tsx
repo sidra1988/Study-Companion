@@ -24,9 +24,11 @@ import { motion, AnimatePresence } from "motion/react";
 import Markdown from 'react-markdown';
 
 // Initialize Gemini API
-const ai = new GoogleGenAI({ 
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY || (process.env.GEMINI_API_KEY as string) 
-});
+const getAI = () => {
+  const key = (process.env.GEMINI_API_KEY as string) || (import.meta.env.VITE_GEMINI_API_KEY as string);
+  if (!key) return null;
+  return new GoogleGenAI({ apiKey: key });
+};
 
 const SYSTEM_INSTRUCTION = `You are an intelligent AI Study Companion designed to help students learn efficiently, stay focused, and avoid procrastination.
 Your task is to analyze the user's input and generate a structured learning response.
@@ -75,13 +77,19 @@ export default function App() {
     const topic = overrideTopic || input;
     if (!topic.trim()) return;
 
+    const genAI = getAI();
+    if (!genAI) {
+      setError("API Key is missing. If you're on Vercel, please add VITE_GEMINI_API_KEY to your Environment Variables.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResponse(null);
     setCurrentTopic(topic);
 
     try {
-      const result = await ai.models.generateContent({
+      const result = await genAI.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: topic,
         config: {
